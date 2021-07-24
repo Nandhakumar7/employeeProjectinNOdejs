@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 
 const employeeSchema = new mongoose.Schema({
-  Name: {
+  Name:{
     type: String
   },
   _id:{
     type: Number
   },
-  passWord: {
+  passWord:{
     type: String
   },
-  Salary: {
+  Salary:{
     type: String
   }
 })

@@ -1,12 +1,14 @@
 require('./db/mangoose');
 const xlsx = require('xlsx');
 const employeeExcels = require('./Model/employeeDetails')
-
 const schedule = require('node-schedule');
 
 const job = schedule.scheduleJob('0 */3 * * *', readFileAndUpdateToDb);
 
-//read the data from Excel file and update into database
+/**
+ * read the data from Excel file and store 
+ * into mongodb
+ */
 function readFileAndUpdateToDb() {
   const file = xlsx.readFile('./employeeDetails.xlsx')
   let data = xlsx.utils.sheet_to_json(file.Sheets[file.SheetNames[0]])

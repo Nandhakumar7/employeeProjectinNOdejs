@@ -40,4 +40,5 @@ router.put('/updateEmployee/:id', authGuard.authGuard, employeeController.update
 router.post("/readExcel", authGuard.authGuard, employeeController.saveExcelValuetoDb)
 
 router.use(authGuard.print)
+
 module.exports = router;

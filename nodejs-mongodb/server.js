@@ -5,12 +5,14 @@ const cookieParser = require('cookie-parser');
 let MongoDBStore = require('connect-mongodb-session')(session);
 const app = express();
 app.use(express.json());
+
+//create mongo store for store session object in mongodb 
 const store = new MongoDBStore({
   uri: 'mongodb://localhost:2719/employees?replicaSet=myrpl',
   collection: 'Sessions'
 });
 
-//create session objects here....
+//create session objects here
 app.use(session({ 
   secret: 'ssshhhhh',
   store: store,
@@ -22,7 +24,6 @@ app.use(session({
 }));
 app.use(cookieParser());
 app.use(router);
-
 app.listen(3200, () => {
   console.log('running!!!');
 });

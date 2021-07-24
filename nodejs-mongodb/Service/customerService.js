@@ -1,9 +1,13 @@
-console.log("employeeService")
+console.log("customerServivce")
 const Customer = require("../Model/employeeDetails")
 
-// add new customer to databse
+/**
+ * get details from user and created new 
+ * customer in database
+ */
 addCustomer = async (session, userDetails) => {
-    const customer = new Customer(userDetails);
-    await customer.save({session:session});
+  const customer = new Customer(userDetails);
+  await customer.save({session:session});
 }
+
 module.exports = { addCustomer }
