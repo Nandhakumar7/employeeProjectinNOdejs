@@ -20,7 +20,7 @@ getEmployees = async() => {
   } catch(e) {
     employeesData = null;
   }
-  return employeesData;
+  return null;
 } 
 
 /**

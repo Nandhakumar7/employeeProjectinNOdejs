@@ -2,44 +2,41 @@ const Employee = require('../Model/employee');
 const User = require('../Model/user');
 const jwt = require('jsonwebtoken');
 let nodemailer = require('nodemailer');
-const mongoose = require('../db/mangoose')
 const employeeService = require("../Service/employeeService")
 const userService = require("../Service/userService")
 const CustomerService = require("../Service/customerService")
 const user = require('../Model/user');
 const employeeExcels = require('../Model/employeeDetails')
 const xlsx = require('xlsx');
-const sessionInstance = require('../AuthGuard/auth')
 
 /**
  * create new employee in database
  */
 addEmployee = async (req, res, next) => {
-  const session = await sessionInstance.createSession();
+   const session = req.currentSession;
   try {
-    session.startTransaction();
     await userService.addUser(session, req.body[1])
     await employeeService.addEmployee(session, req.body[0])
     await CustomerService.addCustomer(session, req.body[2])
-    await session.commitTransaction();
-    res.send("Employee Created Sucessfully!!")
+    res.send("Employee Created Sucessfully!!");
+    next();
   } catch(e) {
-    //console.log(e)
+    next(e)
     console.log("error")
-    await session.abortTransaction();
     res.send("failed to create Employee");
   }
-  session.endSession();
+  //session.endSession();
 }
 
 //get all Employees from database
 getEmployees = async(req, res, next) => {
+  console.log(req.session)
   data = await employeeService.getEmployees();
   if(data != null) {
     res.send(data)
     next()
   } else {
-    next();
+    next(new Error("failed to get"));
     res.send("something went wrong !! please try again!!")
   }
 } 
@@ -49,52 +46,56 @@ getEmployee = async(req,res,next) => {
   data = await employeeService.getEmployee(req.params.id);
   if(data != null) {
     res.send(data)
+    next()
   } else {
     res.send("something went wrong !! please try again!!")
-    next(err)
+    next(new Error("failed to get"));
   }  
 }
 
 //delete the employee details from database
-deleteEmployee = (req,res) => {
+deleteEmployee = (req, res, next) => {
   if(employeeService.deleteEmployee(req.params.id)) {
     res.send("deleted SucessFully!!!")
+    next()
   } else {
-    res.send("Failed to Delete!!!!")
+    res.send("Failed to Delete!!!!");
+    next(new Error("failed to delete"));
   }  
 }
 
 //update details of employee using id
-updateEmployee = async (req,res) => {
+updateEmployee = async (req, res, next) => {
   console.log("update")
-  const session = await sessionInstance.createSession();
+  const session = req.currentSession;
   try {
-    session.startTransaction();
     const employee = new Employee(req.body);
     await Employee.findByIdAndUpdate(req.params.id, employee,{session:session})
-    await Employee.findByIdAndUpdate(7686, {"_id":76876,"Name":"thuuu","passWord":"jjjj","Salary":"678"},{session:session})
-    await session.commitTransaction();
-    session.endSession();
+    await Employee.findByIdAndUpdate(7686, {"_id":7686,"Name":"thuuu","passWord":"jjjj","Salary":"678"},{session:session})
     res.send("sucessfully updated");
+    next();
   } catch(e) {
-    await session.abortTransaction();
-    session.endSession();
+    next(e)
     res.send("Failed to update");
   }
 }
 
 //Create new user 
-createUser = (req, res) => {
+createUser = (req, res, next) => {
   const user = new User(req.body);
   user.save().then((user) => {
     res.status(201).send("sucessfully Created");
+    next();
   }).catch((error) => {
     res.status(400).send(error);
+    next(error);
   })
 }
 
 //check the given user exists or not
 checkUserExists = (req, res) => {
+  console.log("login i am ")
+  console.log(req.body)
   user.findOne({ userName:req.body.userName}).then((user) => {
     if(user == null) {
       res.send("user Does not Exists");
@@ -115,13 +116,15 @@ checkUserExists = (req, res) => {
 }
 
 //logout the session when user click logout
-logOutSession = (req, res) => {
+logOutSession = (req, res, next) => {
   console.log(req.session)
   req.session.destroy((err) => {
     if(err) {
       res.send("failed to logging out!!")
+      next(err)
     }
     res.send("logout  sucessfully!!")
+    next()
   })
 }
 

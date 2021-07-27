@@ -1,13 +1,16 @@
 const express = require('express');
-const authGuard = require('../AuthGuard/auth');
+const authGuard = require('../midddleWares/auth');
 const router = new express.Router();
+const sessionFactory = require('../midddleWares/sessionFactory')
 const employeeController = require('../Controller/employeeController');
 const cors = require('cors')
 let corsOptions = {
   "origin": 'http://localhost:4200',
   "methods": "GET,PUT,PATCH,POST"
 } 
-router.use(cors(corsOptions));
+//router.use(cors(corsOptions));
+
+router.use(sessionFactory.createSession);
 
 //check the user exists or not 
 router.post('/logIn', employeeController.checkUserExists);
@@ -39,6 +42,8 @@ router.put('/updateEmployee/:id', authGuard.authGuard, employeeController.update
 //read excel file and upload file details into databse
 router.post("/readExcel", authGuard.authGuard, employeeController.saveExcelValuetoDb)
 
-router.use(authGuard.print)
+router.use(sessionFactory.commitTransaction)
+
+router.use(sessionFactory.abortTransaction)
 
 module.exports = router;
