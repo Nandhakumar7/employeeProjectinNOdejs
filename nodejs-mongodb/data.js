@@ -10,6 +10,7 @@ const job = schedule.scheduleJob('0 */3 * * *', readFileAndUpdateToDb);
  * into mongodb
  */
 function readFileAndUpdateToDb() {
+  console.log("hiiiiiiiiiiiii")
   const file = xlsx.readFile('./employeeDetails.xlsx')
   let data = xlsx.utils.sheet_to_json(file.Sheets[file.SheetNames[0]])
   data.forEach((employee) => {
